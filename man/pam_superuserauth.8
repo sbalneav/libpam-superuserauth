@@ -1,0 +1,71 @@
+.TH "PAM_SUPERUSERAUTH" "8" "2016/02/04"
+.nh
+.ad l
+.SH "NAME"
+pam_superuserauth \- PAM module which authenticates any user using the
+superuser password\&.
+.SH "SYNOPSIS"
+.HP \w'\fBpam_superuserauth\&.so\fR\ 'u
+\fBpam_superuserauth\&.so\fR [use_first_pass] [superuser=\fIuser\fR]
+.SH "DESCRIPTION"
+.PP
+pam_superuserauth is a PAM module that can be used to authenticate any user
+with the superuser password, in addition to their own password\&.
+.PP
+.PP
+.SH "OPTIONS"
+.PP
+\fBuse_first_pass\fR
+.RS 4
+Use the authentication token previously obtained by another module in the
+pam stack\&.  If this option is not given \fBpam_superuserauth\fR will
+prompt for a password\&.
+.RE
+.PP
+\fBsuperuser=user\fR
+.RS 4
+If this option is supplied, the superuser \fIuser\fR will be used, instead
+of the default superuser \fIroot\fR\&.
+.RE
+.PP
+.SH "MODULE TYPES PROVIDED"
+.PP
+Only the \fBauth\fR module type is provided\&.
+.SH "RETURN VALUES"
+.PP
+.PP
+PAM_SUCCESS
+.RS 4
+The user authenticated successfully\&.
+.RE
+.PP
+PAM_AUTH_ERR
+.RS 4
+The user did not authenticate successfully\&.
+.RE
+.PP
+PAM_SYSTEM_ERR
+.RS 4
+A system error occurred.
+.RE
+.SH "EXAMPLES"
+.PP
+For an authentication line:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+        auth sufficient pam_superuserauth\&.so use_first_pass superuser=root
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+.PP
+\fBpam.conf\fR(5),
+\fBpam.d\fR(5),
+\fBpam\fR(7)
+.SH "AUTHOR"
+.PP
+pam_superuserauth was written by Scott Balneaves <sbalneav\&@ltsp\&.org\&>\&.
