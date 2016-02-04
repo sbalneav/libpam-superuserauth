@@ -16,5 +16,9 @@ AC_CHECK_LIB(pam, pam_start, [PAM_LIBS="-lpam"],
                 AC_MSG_ERROR([PAM library missing]))
 AC_SUBST(PAM_LIBS)
 
+AC_CHECK_LIB(crypt, crypt, [CRYPT_LIBS="-lcrypt"],
+                AC_MSG_ERROR([crypt library missing]))
+AC_SUBST(CRYPT_LIBS)
+
 AC_CONFIG_FILES([Makefile] [src/Makefile] [man/Makefile])
 AC_OUTPUT

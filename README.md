@@ -14,9 +14,9 @@ How do I use it?
 In your pam configuration files (for example, common-auth), you can have
 something like the following:
 
-auth   [success=2 default=ignore]  pam_unix.so nullok_secure
-auth    sufficient  pam_superuserauth.so use_first_pass
-auth   [success=1 default=ignore]  pam_ldap.so minimum_uid=1000 use_first_pass
+    auth   [success=3 default=ignore]  pam_unix.so nullok_secure
+    auth   [success=2 default=ignore]  pam_superuserauth.so use_first_pass
+    auth   [success=1 default=ignore]  pam_ldap.so minimum_uid=1000 use_first_pass
 
 This allows you to log in as one of your regular LDAP users without knowing, or
 changing their password.
