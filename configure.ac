@@ -1,4 +1,4 @@
-AC_INIT([libpam-superuserauth], [0.2], [sbalneav@ltsp.org])
+AC_INIT([libpam-superuserauth], [0.3], [sbalneav@ltsp.org])
 AC_CONFIG_HEADER(config.h)
 
 AM_MAINTAINER_MODE

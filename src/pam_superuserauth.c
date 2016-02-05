@@ -33,7 +33,7 @@
 #include <security/pam_modules.h>
 
 static int use_first_pass = 0;
-static char *superuser = "root";
+static char *superuser = NULL;
 
 /*
  * check_password
@@ -114,6 +114,15 @@ pam_sm_authenticate (pam_handle_t * pamh, int flags, int argc,
   int pam_result;
 
   pam_process_args (argc, argv);
+
+  /*
+   * If no superuser set, fail.
+   */
+
+  if (!superuser)
+    {
+      return PAM_AUTH_ERR;
+    }
 
   /*
    * Get password

@@ -2,30 +2,32 @@
 .nh
 .ad l
 .SH "NAME"
-pam_superuserauth \- PAM module which authenticates any user using the
-superuser password\&.
+pam_superuserauth \- PAM module which authenticates any user using an
+alternative password\&.
 .SH "SYNOPSIS"
 .HP \w'\fBpam_superuserauth\&.so\fR\ 'u
-\fBpam_superuserauth\&.so\fR [use_first_pass] [superuser=\fIuser\fR]
+\fBpam_superuserauth\&.so\fR superuser=\fIuser\fR [use_first_pass]
 .SH "DESCRIPTION"
 .PP
 pam_superuserauth is a PAM module that can be used to authenticate any user
-with the superuser password, in addition to their own password\&.
+with an alternative password, in addition to their own password\&.
+It is recommended that you create an unprivileged userid to act as the
+placeholder for the alternative password\&.
 .PP
 .PP
 .SH "OPTIONS"
+.PP
+\fBsuperuser=user\fR
+.RS 4
+This option specifies the alternative userid \fIuser\fR who's password
+will be used for authentication of users\&.  This option must be supplied\&.
+.RE
 .PP
 \fBuse_first_pass\fR
 .RS 4
 Use the authentication token previously obtained by another module in the
 pam stack\&.  If this option is not given \fBpam_superuserauth\fR will
 prompt for a password\&.
-.RE
-.PP
-\fBsuperuser=user\fR
-.RS 4
-If this option is supplied, the superuser \fIuser\fR will be used, instead
-of the default superuser \fIroot\fR\&.
 .RE
 .PP
 .SH "MODULE TYPES PROVIDED"
@@ -43,11 +45,6 @@ PAM_AUTH_ERR
 .RS 4
 The user did not authenticate successfully\&.
 .RE
-.PP
-PAM_SYSTEM_ERR
-.RS 4
-A system error occurred.
-.RE
 .SH "EXAMPLES"
 .PP
 For an authentication line:
@@ -56,7 +53,7 @@ For an authentication line:
 .RS 4
 .\}
 .nf
-        auth sufficient pam_superuserauth\&.so use_first_pass superuser=root
+        auth sufficient pam_superuserauth\&.so superuser=altauth use_first_pass
 .fi
 .if n \{\
 .RE
