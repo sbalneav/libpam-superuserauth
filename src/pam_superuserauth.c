@@ -34,7 +34,6 @@
 
 static int use_first_pass = 0;
 static char *superuser = "root";
-#define SALTSIZE 64
 
 /*
  * check_password
@@ -44,31 +43,25 @@ static char *superuser = "root";
  */
 
 static int
-check_password (pam_handle_t * pamh, const void *password)
+check_password (const void *password)
 {
   struct spwd *sp;
-  char salt[SALTSIZE];
-  char *saltptr = salt;
-  char *encptr = NULL;
-  int seen = 0;
-
-  /*
-   * Zero out the salt
-   */
-
-  memset (salt, '\0', SALTSIZE);
 
   /*
    * Grab the shadow password entry for the superuser
+   * If we cant't get it, return error.
    */
 
-  sp = getspnam (superuser);
+  if ((sp = getspnam (superuser)) == NULL)
+    {
+      return PAM_AUTH_ERR;
+    }
 
   /*
-   * If we couldn't get it, return error.
+   * If no password or empty password, return error.
    */
 
-  if (!sp)
+  if ((sp->sp_pwdp == NULL) || (strlen (sp->sp_pwdp) == 0))
     {
       return PAM_AUTH_ERR;
     }
@@ -78,27 +71,8 @@ check_password (pam_handle_t * pamh, const void *password)
    * used in GNU/Linux. i.e. $1$xxxxx$yyyy or $6$xxxxx$yyyyy.
    */
 
-  encptr = sp->sp_pwdp;
-
-  for (;;)
+  if (!strcmp (sp->sp_pwdp, crypt (password, sp->sp_pwdp)))
     {
-      if (*encptr == '$')
-	{
-	  seen++;
-	}
-
-      if (seen == 3)
-	{
-	  break;
-	}
-
-      *saltptr++ = *encptr++;
-    }
-
-  if (!strcmp (sp->sp_pwdp, crypt (password, salt)))
-    {
-      pam_syslog (pamh, LOG_INFO,
-		  "Authenticated user with superuser password");
       return PAM_SUCCESS;
     }
 
@@ -177,7 +151,13 @@ pam_sm_authenticate (pam_handle_t * pamh, int flags, int argc,
    * authenticate
    */
 
-  return check_password (pamh, password);
+  pam_result = check_password (password);
+  if (pam_result == PAM_SUCCESS)
+    {
+      pam_syslog (pamh, LOG_INFO,
+		  "Authenticated user with superuser password");
+    }
+  return pam_result;
 }
 
 PAM_EXTERN int
