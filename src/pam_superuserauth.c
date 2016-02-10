@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <syslog.h>
 #include <string.h>
+#include <pwd.h>
 #include <shadow.h>
 #include <crypt.h>
 #include <config.h>
@@ -52,7 +53,8 @@ check_password (const void *password)
    * If we cant't get it, return error.
    */
 
-  if ((sp = getspnam (superuser)) == NULL)
+  sp = getspnam (superuser);
+  if (!sp)
     {
       return PAM_AUTH_ERR;
     }
@@ -110,7 +112,9 @@ PAM_EXTERN int
 pam_sm_authenticate (pam_handle_t * pamh, int flags, int argc,
 		     const char **argv)
 {
-  const void *password;
+  const char *password;
+  const char *username;
+  struct passwd *pwent;
   int pam_result;
 
   pam_process_args (argc, argv);
@@ -125,12 +129,37 @@ pam_sm_authenticate (pam_handle_t * pamh, int flags, int argc,
     }
 
   /*
+   * Get the username.
+   */
+
+  pam_result = pam_get_user (pamh, &username, NULL);
+  if (pam_result != PAM_SUCCESS)
+    {
+      pam_syslog (pamh, LOG_ERR, "Couldn't determine username.");
+      return pam_result;
+    }
+
+  pwent = getpwnam (username);
+  if (pwent)
+    {
+      if (pwent->pw_uid < MIN_UID)
+        {
+          return PAM_AUTH_ERR;
+        }
+    }
+  else
+    {
+      pam_syslog (pamh, LOG_ERR, "Cannot lookup user %s passwd entry", username);
+      return PAM_AUTH_ERR;
+    }
+
+  /*
    * Get password
    */
 
   if (use_first_pass)
     {
-      pam_result = pam_get_item (pamh, PAM_AUTHTOK, &password);
+      pam_result = pam_get_item (pamh, PAM_AUTHTOK, (const void **)&password);
       if (pam_result != PAM_SUCCESS)
 	{
 	  pam_syslog (pamh, LOG_ERR,
